@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
@@ -21,6 +21,32 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./assignment-11-authentication.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+const verifyFirebaseToken = async (req, res, next) => {
+  const authHeader = req.headers?.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send({ message: "Unauthorized access" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+
+    req.decoded = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).send({ message: "Unauthorized access" });
+  }
+};
 
 async function run() {
   try {
@@ -30,8 +56,14 @@ async function run() {
 
     app.get("/blog", async (req, res) => {
       const category = req.query.category;
-      const filter = category ? {category}: {};
+      const filter = category ? { category } : {};
       const result = await blogCollection.find(filter).toArray();
+      res.send(result);
+    });
+    app.get("/blog/:id", verifyFirebaseToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await blogCollection.findOne(query);
       res.send(result);
     });
 
