@@ -53,6 +53,8 @@ async function run() {
     await client.connect();
 
     const blogCollection = client.db("blogCollection").collection("blogs");
+    const commentCollection = client.db("blogCollection").collection("comments");
+
 
     app.get("/blog", async (req, res) => {
       const category = req.query.category;
@@ -72,6 +74,17 @@ async function run() {
       const result = await blogCollection.insertOne(data);
       res.send(result);
     });
+
+    app.get("/comment", async(req, res) => {
+      const result = await commentCollection.find().toArray();
+      res.send(result)
+    })
+
+    app.post("/comment", async(req,res) => {
+      const data = req.body;
+      const result = await commentCollection.insertOne(data);
+      res.send(result)
+    })
 
     await client.db("admin").command({ ping: 1 });
     console.log(
