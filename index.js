@@ -53,15 +53,25 @@ async function run() {
     await client.connect();
 
     const blogCollection = client.db("blogCollection").collection("blogs");
-    const commentCollection = client.db("blogCollection").collection("comments");
-
+    const commentCollection = client
+      .db("blogCollection")
+      .collection("comments");
 
     app.get("/blog", async (req, res) => {
-      const category = req.query.category;
-      const filter = category ? { category } : {};
+      const { category, searchedText } = req.query;
+      const filter = {};
+
+      if (category) {
+        filter.category = category;
+      }
+      if (searchedText) {
+        filter.title = { $regex: searchedText, $options: "i" };
+      }
+
       const result = await blogCollection.find(filter).toArray();
       res.send(result);
     });
+
     app.get("/blog/:id", verifyFirebaseToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -75,16 +85,16 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/comment", async(req, res) => {
+    app.get("/comment", async (req, res) => {
       const result = await commentCollection.find().toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
 
-    app.post("/comment", async(req,res) => {
+    app.post("/comment", async (req, res) => {
       const data = req.body;
       const result = await commentCollection.insertOne(data);
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
