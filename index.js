@@ -79,6 +79,17 @@ async function run() {
       res.send(result);
     });
 
+    app.put("/blog/:id", verifyFirebaseToken, async(req,res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateData = req.body;
+      const updatedDoc = {
+        $set: updateData,
+      };
+      const result = await blogCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+
     app.post("/blog", async (req, res) => {
       const data = req.body;
       const result = await blogCollection.insertOne(data);
