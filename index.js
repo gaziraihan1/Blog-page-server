@@ -123,6 +123,22 @@ async function run() {
 });
 
 
+app.delete('/wishlist/:id', verifyFirebaseToken, async (req, res) => {
+  const wishlistId = req.params.id;
+  const userEmail = req.query.email;
+
+    const result = await wishlistCollection.deleteOne({
+      _id: new ObjectId(wishlistId),
+      loggedEmail: userEmail,
+    });
+
+    if (result.deletedCount === 1) {
+      res.send({ success: true, message: 'Item deleted successfully' });
+    } else {
+      res.status(403).send({ success: false, message: 'Unauthorized or item not found' });
+    }
+  
+});
 
 
    app.post('/wishlist', async (req, res) => {
