@@ -53,9 +53,8 @@ async function run() {
     await client.connect();
 
     const blogCollection = client.db("blogCollection").collection("blogs");
-    const commentCollection = client
-      .db("blogCollection")
-      .collection("comments");
+    const commentCollection = client.db("blogCollection").collection("comments");
+    const wishlistCollection = client.db("blogCollection").collection("wishlist");
 
     app.get("/blog", async (req, res) => {
       const { category, searchedText } = req.query;
@@ -78,8 +77,12 @@ async function run() {
       const result = await blogCollection.findOne(query);
       res.send(result);
     });
+    app.get("/recent-blog", async (req, res) => {
+      const result = await blogCollection.find().limit(6).toArray();
+      res.send(result);
+    });
 
-    app.put("/blog/:id", verifyFirebaseToken, async(req,res) => {
+    app.put("/blog/:id", verifyFirebaseToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updateData = req.body;
@@ -88,7 +91,7 @@ async function run() {
       };
       const result = await blogCollection.updateOne(filter, updatedDoc);
       res.send(result);
-    })
+    });
 
     app.post("/blog", async (req, res) => {
       const data = req.body;
@@ -106,6 +109,50 @@ async function run() {
       const result = await commentCollection.insertOne(data);
       res.send(result);
     });
+
+   app.get("/wishlist", verifyFirebaseToken, async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).send({ error: "Email is required" });
+  }
+
+    const result = await wishlistCollection.find({ loggedEmail: email }).toArray();
+    res.send(result);
+  
+});
+
+
+
+
+   app.post('/wishlist', async (req, res) => {
+  const { _id: blogId, loggedEmail, ...rest } = req.body;
+
+  if (!blogId || !loggedEmail) {
+    return res.status(400).send({ error: "Missing blogId or loggedEmail" });
+  }
+
+  const existsAlready = await wishlistCollection.findOne({
+    blogId,
+    loggedEmail,
+  });
+
+  if (existsAlready) {
+    return res.send({ insertedId: false, message: 'Already in wishlist' });
+  }
+
+  const newItem = {
+    ...rest,
+    blogId,     
+    loggedEmail, 
+  };
+
+  const result = await wishlistCollection.insertOne(newItem);
+  res.send(result);
+});
+
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
