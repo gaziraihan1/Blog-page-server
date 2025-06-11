@@ -7,11 +7,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-  })
-);
+app.use(cors());
 
 const uri = `mongodb+srv://${process.env.MONGO_NAME}:${process.env.MONGO_PASS}@cluster-1.${process.env.CLUSTER_CODE}.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-1`;
 const client = new MongoClient(uri, {
@@ -50,7 +46,6 @@ const verifyFirebaseToken = async (req, res, next) => {
 
 async function run() {
   try {
-    await client.connect();
 
     const blogCollection = client.db("blogCollection").collection("blogs");
     const commentCollection = client.db("blogCollection").collection("comments");
@@ -78,7 +73,7 @@ async function run() {
       res.send(result);
     });
     app.get("/recent-blog", async (req, res) => {
-      const result = await blogCollection.find().limit(6).toArray();
+      const result = await blogCollection.find().sort({_id: -1}).limit(6).toArray();
       res.send(result);
     });
 
@@ -165,15 +160,7 @@ app.delete('/wishlist/:id', verifyFirebaseToken, async (req, res) => {
 
   const result = await wishlistCollection.insertOne(newItem);
   res.send(result);
-});
-
-
-
-
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+});  
   } finally {
   }
 }
