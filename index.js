@@ -2,14 +2,13 @@ require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(cors());
 
-const uri = `mongodb+srv://${process.env.MONGO_NAME}:${process.env.MONGO_PASS}@cluster-1.${process.env.CLUSTER_CODE}.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-1`;
+const uri = `mongodb+srv://${process.env.MONGO_NAME}:${process.env.MONGO_PASS}@cluster-1.atolsgl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-1`;
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -46,7 +45,7 @@ const verifyFirebaseToken = async (req, res, next) => {
 
 async function run() {
   try {
-
+await client.connect()
     const blogCollection = client.db("blogCollection").collection("blogs");
     const commentCollection = client.db("blogCollection").collection("comments");
     const wishlistCollection = client.db("blogCollection").collection("wishlist");
