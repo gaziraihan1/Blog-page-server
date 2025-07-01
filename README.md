@@ -41,6 +41,8 @@ cd Blog-page-server
 ```
 npm install
 ```
-```Run project
+
+**Run locally**
+```
 nodemon index.js
 ```
