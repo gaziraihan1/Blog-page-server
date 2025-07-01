@@ -23,15 +23,22 @@ Welcome to the **Ultra blog server** – a server for storing data of Blog page.
 
 ## 📁 Getting Started
 
+*Create database and add it into .env file then import it into uri*
+
 To run this project locally:
 
-```Git clone
-git clone https://github.com/Programming-Hero-Web-Course4/b11a11-client-side-gaziraihan1.git
+**Git clone**
 ```
-```CD
-cd b11a11-client-side-gaziraihan1
+git clone https://github.com/gaziraihan1/Blog-page-server.git
 ```
-```NPM install
+
+**Change directory**
+```
+cd Blog-page-server
+```
+
+**Install Node Package Manager**
+```
 npm install
 ```
 ```Run project
