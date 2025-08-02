@@ -46,3 +46,19 @@ npm install
 ```
 nodemon index.js
 ```
+
+**Frontend**
+```
+git clone https://github.com/gaziraihan1/Blog-page-client.git
+cd Blog-page-client
+```
+
+**Install dependency**
+```
+npm install
+```
+
+**Run locally**
+```
+npm run dev
+```
